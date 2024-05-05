@@ -1,5 +1,8 @@
 //! A simple software raytracer based on the book "The Ray Tracer Challenge".
 
-mod primitives;
+#![warn(missing_debug_implementations)]
 
-pub use primitives::tuple::{Point, Vector};
+mod types;
+
+pub use types::color::Color;
+pub use types::tuple::{Point, Vector};
