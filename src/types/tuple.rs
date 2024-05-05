@@ -160,6 +160,20 @@ mod tests {
     }
 
     #[test]
+    fn point_to_string() {
+        let p = Point::new(4.3, -4.2, 3.1);
+        assert_eq!(p.to_string(), "[4.3, -4.2, 3.1, 1]");
+        assert_eq!(format!("{:+.2}", p), "[+4.30, -4.20, +3.10, +1.00]");
+    }
+
+    #[test]
+    fn vector_to_string() {
+        let v = Vector::new(4.3, -4.2, 3.1);
+        assert_eq!(v.to_string(), "[4.3, -4.2, 3.1, 0]");
+        assert_eq!(format!("{:+.2}", v), "[+4.30, -4.20, +3.10, +0.00]");
+    }
+
+    #[test]
     fn add_vector_to_point() {
         let p = Point::new(3.0, -4.0, 5.0);
         let v = Vector::new(-2.0, 3.0, 1.0);
