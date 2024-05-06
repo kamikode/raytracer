@@ -1,12 +1,35 @@
 use super::float::Float;
 use std::ops::{Add, Mul, Sub};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Color {
     pub r: Float,
     pub g: Float,
     pub b: Float,
 }
+
+macro_rules! impl_named_color {
+    ($name:ident, $r:literal, $g:literal, $b:literal) => {
+        impl Color {
+            pub const fn $name() -> Self {
+                Color {
+                    r: $r,
+                    g: $g,
+                    b: $b,
+                }
+            }
+        }
+    };
+}
+impl_named_color!(black, 0.0, 0.0, 0.0);
+impl_named_color!(gray, 0.5, 0.5, 0.5);
+impl_named_color!(white, 1.0, 1.0, 1.0);
+impl_named_color!(red, 1.0, 0.0, 0.0);
+impl_named_color!(green, 0.0, 1.0, 0.0);
+impl_named_color!(blue, 0.0, 0.0, 1.0);
+impl_named_color!(cyan, 0.0, 1.0, 1.0);
+impl_named_color!(magenta, 1.0, 0.0, 1.0);
+impl_named_color!(yellow, 1.0, 1.0, 0.0);
 
 macro_rules! impl_elementwise_op {
     ($Op:ident, $op_fn:ident, $op:tt) => {
@@ -62,6 +85,70 @@ mod tests {
         assert_eq!(c.r, -0.5);
         assert_eq!(c.g, 0.4);
         assert_eq!(c.b, 1.7);
+    }
+
+    #[test]
+    fn create_black() {
+        let c = Color::black();
+        assert_eq!(c.r, 0.0);
+        assert_eq!(c.g, 0.0);
+        assert_eq!(c.b, 0.0);
+    }
+
+    #[test]
+    fn create_white() {
+        let c = Color::white();
+        assert_eq!(c.r, 1.0);
+        assert_eq!(c.g, 1.0);
+        assert_eq!(c.b, 1.0);
+    }
+
+    #[test]
+    fn create_red() {
+        let c = Color::red();
+        assert_eq!(c.r, 1.0);
+        assert_eq!(c.g, 0.0);
+        assert_eq!(c.b, 0.0);
+    }
+
+    #[test]
+    fn create_green() {
+        let c = Color::green();
+        assert_eq!(c.r, 0.0);
+        assert_eq!(c.g, 1.0);
+        assert_eq!(c.b, 0.0);
+    }
+
+    #[test]
+    fn create_blue() {
+        let c = Color::blue();
+        assert_eq!(c.r, 0.0);
+        assert_eq!(c.g, 0.0);
+        assert_eq!(c.b, 1.0);
+    }
+
+    #[test]
+    fn create_cyan() {
+        let c = Color::cyan();
+        assert_eq!(c.r, 0.0);
+        assert_eq!(c.g, 1.0);
+        assert_eq!(c.b, 1.0);
+    }
+
+    #[test]
+    fn create_magenta() {
+        let c = Color::magenta();
+        assert_eq!(c.r, 1.0);
+        assert_eq!(c.g, 0.0);
+        assert_eq!(c.b, 1.0);
+    }
+
+    #[test]
+    fn create_yellow() {
+        let c = Color::yellow();
+        assert_eq!(c.r, 1.0);
+        assert_eq!(c.g, 1.0);
+        assert_eq!(c.b, 0.0);
     }
 
     #[test]
