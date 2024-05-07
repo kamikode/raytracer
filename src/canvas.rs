@@ -1,5 +1,6 @@
 use crate::Color;
 use std::cmp;
+use std::io::{self, Write};
 
 const CLEAR_COLOR: Color = Color::black();
 
@@ -60,6 +61,26 @@ impl Canvas {
             None => None,
         }
     }
+
+    pub fn write_ppm<T: Write>(&self, file: &mut T) -> io::Result<()> {
+        // Write header.
+        writeln!(file, "P3")?;
+        writeln!(file, "{} {}", self.width(), self.height())?;
+        writeln!(file, "255")?;
+        // Write pixel data.
+        for y in 0..self.height() {
+            for x in 0..self.width() {
+                let pixel = self
+                    .get_pixel(x, y)
+                    .expect("the requested pixel should always be inside the canvas");
+                let r = (255.0 * pixel.r).max(0.0).min(255.0);
+                let g = (255.0 * pixel.g).max(0.0).min(255.0);
+                let b = (255.0 * pixel.b).max(0.0).min(255.0);
+                writeln!(file, "{:.0} {:.0} {:.0}", r, g, b)?;
+            }
+        }
+        Ok(())
+    }
 }
 
 impl IntoIterator for Canvas {
@@ -73,6 +94,9 @@ impl IntoIterator for Canvas {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs::File;
+    use std::io::Read;
+    use tempfile::NamedTempFile;
 
     #[test]
     fn create_canvas() {
@@ -151,5 +175,41 @@ mod tests {
         canvas.set_pixel(0, 0, CLEAR_COLOR);
         assert_eq!(canvas.width(), 1);
         assert_eq!(canvas.height(), 1);
+    }
+
+    #[test]
+    fn save_canvas_to_ppm_file() -> io::Result<()> {
+        // Open file handles.
+        let mut file_w = NamedTempFile::new()?; // Write handle.
+        let mut file_r: File = file_w.reopen()?; // Read handle.
+
+        // Create canvas and setup pixel data.
+        let mut canvas = Canvas::new(3, 2);
+        canvas.set_pixel(0, 0, Color::red());
+        canvas.set_pixel(1, 0, Color::green());
+        canvas.set_pixel(2, 0, Color::blue());
+        canvas.set_pixel(0, 1, Color::yellow());
+        // Last two pixels check that clamping works correctly.
+        let (r, g, b) = (1.1, 2.0, 1.0); // Should be clamped to white.
+        canvas.set_pixel(1, 1, Color { r, g, b });
+        let (r, g, b) = (0.0, -0.2, -1.0); // Should be clamped to black.
+        canvas.set_pixel(2, 1, Color { r, g, b });
+
+        // Check that canves is written correctly.
+        canvas.write_ppm(&mut file_w)?;
+        let mut buffer = String::new();
+        file_r.read_to_string(&mut buffer)?;
+        let mut lines = buffer.lines();
+        assert_eq!(Some("P3"), lines.next());
+        assert_eq!(Some("3 2"), lines.next());
+        assert_eq!(Some("255"), lines.next());
+        assert_eq!(Some("255 0 0"), lines.next()); // Red pixel at (0, 0).
+        assert_eq!(Some("0 255 0"), lines.next()); // Green pixel at (1, 0).
+        assert_eq!(Some("0 0 255"), lines.next()); // Blue pixel at (2, 0).
+        assert_eq!(Some("255 255 0"), lines.next()); // Yellow pixel at (0, 1).
+        assert_eq!(Some("255 255 255"), lines.next()); // White pixel at (1, 1).
+        assert_eq!(Some("0 0 0"), lines.next()); // Black pixel at (2, 1).
+        assert_eq!(None, lines.next()); // File should have ended.
+        Ok(())
     }
 }
