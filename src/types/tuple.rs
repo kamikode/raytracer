@@ -6,6 +6,7 @@ trait Tuple {}
 
 macro_rules! impl_tuple {
     ($name:ident, $w:literal) => {
+        #[repr(C)]
         #[derive(Debug, PartialEq, Clone, Copy)]
         pub struct $name {
             x: Float,
