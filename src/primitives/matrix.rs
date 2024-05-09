@@ -7,6 +7,10 @@ pub struct Matrix<const M: usize, const N: usize> {
     data: [[Float; N]; M],
 }
 
+pub type Matrix4x4 = Matrix<4, 4>;
+pub type Matrix3x3 = Matrix<3, 3>;
+pub type Matrix2x2 = Matrix<2, 2>;
+
 impl<const M: usize, const N: usize> Matrix<M, N> {
     pub fn new(data: [[Float; N]; M]) -> Self {
         Matrix { data }
@@ -42,6 +46,12 @@ impl<const N: usize> Matrix<N, N> {
             m.data[i][i] = 1.0;
         }
         m
+    }
+}
+
+impl Matrix2x2 {
+    pub fn determinant(&self) -> Float {
+        determinant(*self)
     }
 }
 
@@ -82,10 +92,6 @@ impl<const M: usize, const N: usize> fmt::Display for Matrix<M, N> {
     }
 }
 
-pub type Matrix4x4 = Matrix<4, 4>;
-pub type Matrix3x3 = Matrix<3, 3>;
-pub type Matrix2x2 = Matrix<2, 2>;
-
 pub fn matmul<const M: usize, const N: usize, const P: usize, T: Into<Matrix<N, P>>>(
     lhs: Matrix<M, N>,
     rhs: T,
@@ -110,6 +116,10 @@ pub fn transpose<const M: usize, const N: usize>(m: Matrix<M, N>) -> Matrix<N, M
         }
     }
     t
+}
+
+pub fn determinant(m: Matrix2x2) -> Float {
+    m[0][0] * m[1][1] - m[0][1] * m[1][0]
 }
 
 #[cfg(test)]
@@ -258,6 +268,13 @@ mod tests {
         let t = Matrix::<2, 3>::new([[0.0, 1.0, 2.0], [0.1, 1.1, 2.1]]);
         assert_eq!(m.transpose(), t);
         assert_eq!(transpose(m), t);
+    }
+
+    #[test]
+    fn determinant_of_matrix2x2() {
+        let m = Matrix2x2::new([[1.0, 5.0], [-3.0, 2.0]]);
+        assert_eq!(m.determinant(), 17.0);
+        assert_eq!(determinant(m), 17.0);
     }
 
     #[test]
