@@ -3,8 +3,9 @@
 #![warn(missing_debug_implementations)]
 
 mod canvas;
-mod types;
+mod primitives;
 
 pub use canvas::Canvas;
-pub use types::color::Color;
-pub use types::tuple::{Point, Vector};
+pub use primitives::color::Color;
+pub use primitives::matrix::Matrix;
+pub use primitives::tuple::{Point, Vector};
