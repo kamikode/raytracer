@@ -23,12 +23,6 @@ pub struct Canvas<const W: usize, const H: usize> {
     height: usize,
 }
 
-impl<const W: usize, const H: usize> Default for Canvas<W, H> {
-    fn default() -> Self {
-        Canvas::new()
-    }
-}
-
 impl<const W: usize, const H: usize> Canvas<W, H> {
     pub fn new() -> Self {
         Canvas {
@@ -76,6 +70,12 @@ impl<const W: usize, const H: usize> Canvas<W, H> {
             }
         }
         Ok(())
+    }
+}
+
+impl<const W: usize, const H: usize> Default for Canvas<W, H> {
+    fn default() -> Self {
+        Canvas::new()
     }
 }
 
