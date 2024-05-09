@@ -23,6 +23,18 @@ impl<const M: usize, const N: usize> Matrix<M, N> {
             data: [[1.0; N]; M],
         }
     }
+
+    pub fn matmul<const P: usize>(&self, rhs: Matrix<N, P>) -> Matrix<M, P> {
+        let mut out = Matrix::<M, P>::zeros();
+        for i in 0..M {
+            for j in 0..P {
+                for k in 0..N {
+                    out[i][j] += self[i][k] * rhs[k][j];
+                }
+            }
+        }
+        out
+    }
 }
 
 impl<const N: usize> Matrix<N, N> {
@@ -77,6 +89,13 @@ impl<const M: usize, const N: usize> fmt::Display for Matrix<M, N> {
 pub type Matrix4x4 = Matrix<4, 4>;
 pub type Matrix3x3 = Matrix<3, 3>;
 pub type Matrix2x2 = Matrix<2, 2>;
+
+pub fn matmul<const M: usize, const N: usize, const P: usize>(
+    lhs: Matrix<M, N>,
+    rhs: Matrix<N, P>,
+) -> Matrix<M, P> {
+    lhs.matmul(rhs)
+}
 
 #[cfg(test)]
 mod tests {
@@ -141,6 +160,30 @@ mod tests {
         let m3 = Matrix::<2, 1>::new([[1.0], [0.0]]);
         assert_eq!(m1, m2);
         assert_ne!(m1, m3);
+    }
+
+    #[test]
+    fn matrix_matrix_multiplication() {
+        let a = Matrix4x4::new([
+            [1.0, 2.0, 3.0, 4.0],
+            [5.0, 6.0, 7.0, 8.0],
+            [9.0, 8.0, 7.0, 6.0],
+            [5.0, 4.0, 3.0, 2.0],
+        ]);
+        let b = Matrix4x4::new([
+            [-2.0, 1.0, 2.0, 3.0],
+            [3.0, 2.0, 1.0, -1.0],
+            [4.0, 3.0, 6.0, 5.0],
+            [1.0, 2.0, 7.0, 8.0],
+        ]);
+        let c = Matrix4x4::new([
+            [20.0, 22.0, 50.0, 48.0],
+            [44.0, 54.0, 114.0, 108.0],
+            [40.0, 58.0, 110.0, 102.0],
+            [16.0, 26.0, 46.0, 42.0],
+        ]);
+        assert_eq!(a.matmul(b), c);
+        assert_eq!(matmul(a, b), c);
     }
 
     #[test]
