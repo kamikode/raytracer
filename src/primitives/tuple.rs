@@ -1,8 +1,9 @@
 use super::float::Float;
+use crate::Matrix;
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-trait Tuple {}
+trait Tuple: Into<Matrix<4, 1>> {}
 
 macro_rules! impl_tuple {
     ($name:ident, $w:literal) => {
@@ -33,6 +34,14 @@ macro_rules! impl_tuple {
                 f.write_str("]")
             }
         }
+
+        impl From<$name> for Matrix<4, 1> {
+            fn from(value: $name) -> Self {
+                Matrix::<4, 1>::new([[value.x], [value.y], [value.z], [$w]])
+            }
+        }
+
+        impl Tuple for $name {}
     };
 }
 impl_tuple!(Point, 1.0);

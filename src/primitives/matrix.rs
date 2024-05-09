@@ -24,16 +24,8 @@ impl<const M: usize, const N: usize> Matrix<M, N> {
         }
     }
 
-    pub fn matmul<const P: usize>(&self, rhs: Matrix<N, P>) -> Matrix<M, P> {
-        let mut out = Matrix::<M, P>::zeros();
-        for i in 0..M {
-            for j in 0..P {
-                for k in 0..N {
-                    out[i][j] += self[i][k] * rhs[k][j];
-                }
-            }
-        }
-        out
+    pub fn matmul<const P: usize, T: Into<Matrix<N, P>>>(&self, rhs: T) -> Matrix<M, P> {
+        matmul(*self, rhs)
     }
 }
 
@@ -90,16 +82,26 @@ pub type Matrix4x4 = Matrix<4, 4>;
 pub type Matrix3x3 = Matrix<3, 3>;
 pub type Matrix2x2 = Matrix<2, 2>;
 
-pub fn matmul<const M: usize, const N: usize, const P: usize>(
+pub fn matmul<const M: usize, const N: usize, const P: usize, T: Into<Matrix<N, P>>>(
     lhs: Matrix<M, N>,
-    rhs: Matrix<N, P>,
+    rhs: T,
 ) -> Matrix<M, P> {
-    lhs.matmul(rhs)
+    let rhs = rhs.into();
+    let mut out = Matrix::<M, P>::zeros();
+    for i in 0..M {
+        for j in 0..P {
+            for k in 0..N {
+                out[i][j] += lhs[i][k] * rhs[k][j];
+            }
+        }
+    }
+    out
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{Point, Vector};
 
     #[test]
     fn create_matrix2x2() {
@@ -184,6 +186,56 @@ mod tests {
         ]);
         assert_eq!(a.matmul(b), c);
         assert_eq!(matmul(a, b), c);
+    }
+
+    #[test]
+    fn from_vector() {
+        let v = Vector::new(0.0, 1.0, 2.0);
+        let m = Matrix::from(v);
+        assert_eq!(m, Matrix::<4, 1>::new([[0.0], [1.0], [2.0], [0.0]]));
+    }
+
+    #[test]
+    fn from_point() {
+        let p = Point::new(0.0, 1.0, 2.0);
+        let m = Matrix::from(p);
+        assert_eq!(m, Matrix::<4, 1>::new([[0.0], [1.0], [2.0], [1.0]]));
+    }
+
+    #[test]
+    fn matrix_point_multiplication() {
+        let p = Point::new(1.0, 2.0, 3.0);
+        let m = Matrix4x4::new([
+            [1.0, 2.0, 3.0, 4.0],
+            [2.0, 4.0, 4.0, 2.0],
+            [8.0, 6.0, 4.0, 1.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ]);
+        assert_eq!(
+            m.matmul(p),
+            Matrix::<4, 1>::new([[18.0], [24.0], [33.0], [1.0]])
+        )
+    }
+
+    #[test]
+    fn matrix_vector_multiplication() {
+        let v = Vector::new(1.0, 2.0, 3.0);
+        let m = Matrix4x4::new([
+            [1.0, 2.0, 3.0, 4.0],
+            [2.0, 4.0, 4.0, 2.0],
+            [8.0, 6.0, 4.0, 1.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ]);
+        assert_eq!(
+            m.matmul(v),
+            Matrix::<4, 1>::new([[14.0], [22.0], [32.0], [0.0]])
+        )
+    }
+
+    #[test]
+    fn matrix_multiplication_with_identity() {
+        let m = Matrix2x2::new([[0.0, 1.0], [2.0, 3.0]]);
+        assert_eq!(m.matmul(Matrix2x2::identity()), m)
     }
 
     #[test]
