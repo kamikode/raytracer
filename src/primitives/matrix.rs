@@ -27,6 +27,10 @@ impl<const M: usize, const N: usize> Matrix<M, N> {
     pub fn matmul<const P: usize, T: Into<Matrix<N, P>>>(&self, rhs: T) -> Matrix<M, P> {
         matmul(*self, rhs)
     }
+
+    pub fn transpose(&self) -> Matrix<N, M> {
+        transpose(*self)
+    }
 }
 
 impl<const N: usize> Matrix<N, N> {
@@ -96,6 +100,16 @@ pub fn matmul<const M: usize, const N: usize, const P: usize, T: Into<Matrix<N, 
         }
     }
     out
+}
+
+pub fn transpose<const M: usize, const N: usize>(m: Matrix<M, N>) -> Matrix<N, M> {
+    let mut t = Matrix::<N, M>::zeros();
+    for i in 0..M {
+        for j in 0..N {
+            t[j][i] = m[i][j];
+        }
+    }
+    t
 }
 
 #[cfg(test)]
@@ -211,10 +225,9 @@ mod tests {
             [8.0, 6.0, 4.0, 1.0],
             [0.0, 0.0, 0.0, 1.0],
         ]);
-        assert_eq!(
-            m.matmul(p),
-            Matrix::<4, 1>::new([[18.0], [24.0], [33.0], [1.0]])
-        )
+        let o = Matrix::<4, 1>::new([[18.0], [24.0], [33.0], [1.0]]);
+        assert_eq!(m.matmul(p), o);
+        assert_eq!(matmul(m, p), o);
     }
 
     #[test]
@@ -226,16 +239,25 @@ mod tests {
             [8.0, 6.0, 4.0, 1.0],
             [0.0, 0.0, 0.0, 1.0],
         ]);
-        assert_eq!(
-            m.matmul(v),
-            Matrix::<4, 1>::new([[14.0], [22.0], [32.0], [0.0]])
-        )
+        let o = Matrix::<4, 1>::new([[14.0], [22.0], [32.0], [0.0]]);
+        assert_eq!(m.matmul(v), o);
+        assert_eq!(matmul(m, v), o);
     }
 
     #[test]
     fn matrix_multiplication_with_identity() {
         let m = Matrix2x2::new([[0.0, 1.0], [2.0, 3.0]]);
-        assert_eq!(m.matmul(Matrix2x2::identity()), m)
+        let id = Matrix2x2::identity();
+        assert_eq!(m.matmul(id), m);
+        assert_eq!(matmul(m, id), m);
+    }
+
+    #[test]
+    fn matrix_transposition() {
+        let m = Matrix::<3, 2>::new([[0.0, 0.1], [1.0, 1.1], [2.0, 2.1]]);
+        let t = Matrix::<2, 3>::new([[0.0, 1.0, 2.0], [0.1, 1.1, 2.1]]);
+        assert_eq!(m.transpose(), t);
+        assert_eq!(transpose(m), t);
     }
 
     #[test]
