@@ -3,7 +3,7 @@ use crate::Matrix;
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-trait Tuple: Into<Matrix<4, 1>> {}
+trait Tuple {}
 
 macro_rules! impl_tuple {
     ($name:ident, $w:literal) => {
