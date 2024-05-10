@@ -4,13 +4,13 @@ pub type Float = f64;
 #[cfg(test)]
 macro_rules! approx_eq {
     ($x:expr, $y:expr) => {
-        Float::abs($x - $y) <= 1e-8 + 1e-5 * Float::abs($y)
+        Float::abs($x - $y) <= Float::EPSILON.sqrt() + 1e-5 * Float::abs($y)
     };
     ($x:expr, $y:expr, atol = $atol:expr) => {
         Float::abs($x - $y) <= $atol + 1e-5 * Float::abs($y)
     };
     ($x:expr, $y:expr, rtol = $rtol:expr) => {
-        Float::abs($x - $y) <= 1e-8 + $rtol * Float::abs($y)
+        Float::abs($x - $y) <= Float::EPSILON.sqrt() + $rtol * Float::abs($y)
     };
     ($x:expr, $y:expr, atol = $atol:expr, rtol = $rtol:expr) => {
         Float::abs($x - $y) <= $atol + $rtol * Float::abs($y)

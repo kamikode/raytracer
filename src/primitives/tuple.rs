@@ -150,6 +150,15 @@ impl Vector {
 mod tests {
     use super::*;
 
+    macro_rules! assert_approx_eq {
+        ($tuple1:expr, $tuple2:expr) => {
+            assert!(approx_eq!($tuple1.x, $tuple2.x));
+            assert!(approx_eq!($tuple1.y, $tuple2.y));
+            assert!(approx_eq!($tuple1.z, $tuple2.z));
+            assert!(approx_eq!($tuple1.w, $tuple2.w));
+        };
+    }
+
     #[test]
     fn create_point() {
         let p = Point::new(4.3, -4.2, 3.1);
@@ -283,9 +292,8 @@ mod tests {
         assert_eq!(v.normalize(), u);
         let v = Vector::new(1.0, 2.0, 3.0);
         let u = v.normalize();
-        assert!(approx_eq!(u.x, 0.26726)); // ≈ 1 / √14
-        assert!(approx_eq!(u.y, 0.53452)); // ≈ 2 / √14
-        assert!(approx_eq!(u.z, 0.80178)); // ≈ 3 / √14
+        let norm: Float = Float::sqrt(14.0);
+        assert_approx_eq!(u, Vector::new(1.0 / norm, 2.0 / norm, 3.0 / norm));
     }
 
     #[test]
