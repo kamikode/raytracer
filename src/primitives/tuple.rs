@@ -109,40 +109,25 @@ impl Div<Float> for Vector {
     }
 }
 
-pub fn length(v: Vector) -> Float {
-    dot(v, v).sqrt()
-}
-
-pub fn normalize(v: Vector) -> Vector {
-    v / length(v)
-}
-
-pub fn dot(a: Vector, b: Vector) -> Float {
-    a.x * b.x + a.y * b.y + a.z * b.z
-}
-
-pub fn cross(a: Vector, b: Vector) -> Vector {
-    let x = a.y * b.z - a.z * b.y;
-    let y = a.z * b.x - a.x * b.z;
-    let z = a.x * b.y - a.y * b.x;
-    Vector::new(x, y, z)
-}
-
 impl Vector {
     pub fn length(&self) -> Float {
-        length(*self)
+        self.dot(*self).sqrt()
     }
 
     pub fn normalize(&self) -> Vector {
-        normalize(*self)
+        *self / self.length()
     }
 
     pub fn dot(&self, rhs: Vector) -> Float {
-        dot(*self, rhs)
+        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 
     pub fn cross(&self, rhs: Vector) -> Vector {
-        cross(*self, rhs)
+        Vector::new(
+            self.y * rhs.z - self.z * rhs.y,
+            self.z * rhs.x - self.x * rhs.z,
+            self.x * rhs.y - self.y * rhs.x,
+        )
     }
 }
 
@@ -259,8 +244,6 @@ mod tests {
     fn dot_product() {
         let a = Vector::new(1.0, 2.0, 3.0);
         let b = Vector::new(2.0, 3.0, 4.0);
-        assert_eq!(dot(a, b), 20.0);
-        assert_eq!(dot(b, a), 20.0);
         assert_eq!(a.dot(b), 20.0);
         assert_eq!(b.dot(a), 20.0);
     }
@@ -268,19 +251,14 @@ mod tests {
     #[test]
     fn length_calculation() {
         let x = Vector::new(1.0, 0.0, 0.0);
-        assert_eq!(length(x), 1.0);
         assert_eq!(x.length(), 1.0);
         let y = Vector::new(0.0, 1.0, 0.0);
-        assert_eq!(length(y), 1.0);
         assert_eq!(y.length(), 1.0);
         let z = Vector::new(0.0, 0.0, 1.0);
-        assert_eq!(length(z), 1.0);
         assert_eq!(z.length(), 1.0);
         let a = Vector::new(1.0, 2.0, 3.0);
-        assert_eq!(length(a), Float::sqrt(14.0));
         assert_eq!(a.length(), Float::sqrt(14.0));
         let b = Vector::new(-1.0, -2.0, -3.0);
-        assert_eq!(length(b), Float::sqrt(14.0));
         assert_eq!(b.length(), Float::sqrt(14.0));
     }
 
@@ -288,7 +266,6 @@ mod tests {
     fn normalization() {
         let v = Vector::new(4.0, 0.0, 0.0);
         let u = Vector::new(1.0, 0.0, 0.0);
-        assert_eq!(normalize(v), u);
         assert_eq!(v.normalize(), u);
         let v = Vector::new(1.0, 2.0, 3.0);
         let u = v.normalize();
@@ -302,8 +279,6 @@ mod tests {
         let b = Vector::new(2.0, 3.0, 4.0);
         let axb = Vector::new(-1.0, 2.0, -1.0);
         let bxa = Vector::new(1.0, -2.0, 1.0);
-        assert_eq!(cross(a, b), axb);
-        assert_eq!(cross(b, a), bxa);
         assert_eq!(a.cross(b), axb);
         assert_eq!(b.cross(a), bxa);
     }
