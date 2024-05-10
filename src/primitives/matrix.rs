@@ -49,6 +49,35 @@ impl<const N: usize> Matrix<N, N> {
     }
 }
 
+macro_rules! impl_submatrix {
+    ($in:ty, $out:ty) => {
+        impl $in {
+            fn submatrix(&self, row_to_delete: usize, col_to_delete: usize) -> $out {
+                let mut s = <$out>::zeros();
+                for i in 0..row_to_delete {
+                    for j in 0..col_to_delete {
+                        s[i][j] = self[i][j];
+                    }
+                    for j in (col_to_delete + 1)..self.data[0].len() {
+                        s[i][j - 1] = self[i][j];
+                    }
+                }
+                for i in (row_to_delete + 1)..self.data.len() {
+                    for j in 0..col_to_delete {
+                        s[i - 1][j] = self[i][j];
+                    }
+                    for j in (col_to_delete + 1)..self.data[0].len() {
+                        s[i - 1][j - 1] = self[i][j];
+                    }
+                }
+                s
+            }
+        }
+    };
+}
+impl_submatrix!(Matrix4x4, Matrix3x3);
+impl_submatrix!(Matrix3x3, Matrix2x2);
+
 impl Matrix2x2 {
     pub fn determinant(&self) -> Float {
         determinant(*self)
@@ -268,6 +297,28 @@ mod tests {
         let t = Matrix::<2, 3>::new([[0.0, 1.0, 2.0], [0.1, 1.1, 2.1]]);
         assert_eq!(m.transpose(), t);
         assert_eq!(transpose(m), t);
+    }
+
+    #[test]
+    fn submatrix_of_matrix4x4() {
+        assert_eq!(
+            Matrix4x4::new([
+                [-6.0, 1.0, 1.0, 6.0],
+                [-8.0, 5.0, 8.0, 6.0],
+                [-1.0, 0.0, 8.0, 2.0],
+                [-7.0, 1.0, -1.0, 1.0],
+            ])
+            .submatrix(2, 1),
+            Matrix3x3::new([[-6.0, 1.0, 6.0], [-8.0, 8.0, 6.0], [-7.0, -1.0, 1.0]])
+        );
+    }
+
+    #[test]
+    fn submatrix_of_matrix3x3() {
+        assert_eq!(
+            Matrix3x3::new([[1.0, 5.0, 0.0], [-3.0, 2.0, 7.0], [0.0, 6.0, -3.0]]).submatrix(0, 2),
+            Matrix2x2::new([[-3.0, 2.0], [0.0, 6.0]])
+        );
     }
 
     #[test]
