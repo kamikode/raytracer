@@ -308,7 +308,7 @@ impl<const M: usize, const N: usize> fmt::Display for Matrix<M, N> {
 mod tests {
     use super::*;
     use crate::{Point, Vector};
-    use std::iter::zip;
+    use std::{f64::consts::FRAC_PI_2, iter::zip};
 
     macro_rules! assert_approx_eq {
         ($mat1:expr, $mat2:expr) => {
@@ -593,14 +593,12 @@ mod tests {
 
     #[test]
     fn rotation_around_x_axis() {
-        let r = Matrix::rotation_x(std::f64::consts::PI);
-        let e = Matrix::<4, 4>::identity();
         assert_approx_eq!(
-            r.matmul(e),
+            Matrix::rotation_x(FRAC_PI_2 as Float).matmul(Matrix::<4, 4>::identity()),
             Matrix::new([
                 [1.0, 0.0, 0.0, 0.0],
-                [0.0, -1.0, 0.0, 0.0],
                 [0.0, 0.0, -1.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
                 [0.0, 0.0, 0.0, 1.0]
             ])
         );
@@ -608,14 +606,12 @@ mod tests {
 
     #[test]
     fn rotation_around_y_axis() {
-        let r = Matrix::rotation_y(std::f64::consts::PI);
-        let e = Matrix::<4, 4>::identity();
         assert_approx_eq!(
-            r.matmul(e),
+            Matrix::rotation_y(FRAC_PI_2 as Float).matmul(Matrix::<4, 4>::identity()),
             Matrix::new([
-                [-1.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
                 [0.0, 1.0, 0.0, 0.0],
-                [0.0, 0.0, -1.0, 0.0],
+                [-1.0, 0.0, 0.0, 0.0],
                 [0.0, 0.0, 0.0, 1.0]
             ])
         );
@@ -623,13 +619,11 @@ mod tests {
 
     #[test]
     fn rotation_around_z_axis() {
-        let r = Matrix::rotation_z(std::f64::consts::PI);
-        let e = Matrix::<4, 4>::identity();
         assert_approx_eq!(
-            r.matmul(e),
+            Matrix::rotation_z(FRAC_PI_2 as Float).matmul(Matrix::<4, 4>::identity()),
             Matrix::new([
-                [-1.0, 0.0, 0.0, 0.0],
                 [0.0, -1.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0, 0.0],
                 [0.0, 0.0, 1.0, 0.0],
                 [0.0, 0.0, 0.0, 1.0]
             ])
