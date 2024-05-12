@@ -677,6 +677,22 @@ mod tests {
     }
 
     #[test]
+    fn chaining_transformations() {
+        let p = Matrix::point(1.0, 0.0, 1.0);
+        let r = Matrix::rotation_x(FRAC_PI_2 as Float);
+        let s = Matrix::scaling(5.0, 5.0, 5.0);
+        let t = Matrix::translation(10.0, 5.0, 7.0);
+        let p2 = r.matmul(p);
+        assert_approx_eq!(p2, Matrix::point(1.0, -1.0, 0.0));
+        let p3 = s.matmul(p2);
+        assert_approx_eq!(p3, Matrix::point(5.0, -5.0, 0.0));
+        let p4 = t.matmul(p3);
+        assert_approx_eq!(p4, Matrix::point(15.0, 0.0, 7.0));
+        let rst = t.matmul(s).matmul(r);
+        assert_approx_eq!(rst.matmul(p), p4);
+    }
+
+    #[test]
     fn matrix_to_string() {
         let m = Matrix::<3, 2>::new([[0.1, -1.0], [2.0, 3.09], [-4.0, 5.0]]);
         assert_eq!(m.to_string(), "[[0.1, -1]\n [2, 3.09]\n [-4, 5]]");
