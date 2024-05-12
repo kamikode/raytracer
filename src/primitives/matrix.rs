@@ -136,6 +136,17 @@ impl Matrix<4, 4> {
             ],
         }
     }
+
+    pub fn shearing(xy: Float, xz: Float, yx: Float, yz: Float, zx: Float, zy: Float) -> Self {
+        Matrix {
+            data: [
+                [1.0, xy, xz, 0.0],
+                [yx, 1.0, yz, 0.0],
+                [zx, zy, 1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+        }
+    }
 }
 
 pub trait Invertible
@@ -627,6 +638,41 @@ mod tests {
                 [0.0, 0.0, 1.0, 0.0],
                 [0.0, 0.0, 0.0, 1.0]
             ])
+        );
+    }
+
+    #[test]
+    fn shearing() {
+        let v = Matrix::vector(2.0, 3.0, 4.0);
+        // x in proportion to y.
+        assert_eq!(
+            Matrix::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0).matmul(v),
+            Matrix::new([[5.0], [3.0], [4.0], [0.0]])
+        );
+        // x in proportion to z.
+        assert_eq!(
+            Matrix::shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0).matmul(v),
+            Matrix::new([[6.0], [3.0], [4.0], [0.0]])
+        );
+        // y in proportion to x.
+        assert_eq!(
+            Matrix::shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0).matmul(v),
+            Matrix::new([[2.0], [5.0], [4.0], [0.0]])
+        );
+        // y in proportion to z.
+        assert_eq!(
+            Matrix::shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0).matmul(v),
+            Matrix::new([[2.0], [7.0], [4.0], [0.0]])
+        );
+        // z in proportion to x.
+        assert_eq!(
+            Matrix::shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0).matmul(v),
+            Matrix::new([[2.0], [3.0], [6.0], [0.0]])
+        );
+        // z in proportion to y.
+        assert_eq!(
+            Matrix::shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0).matmul(v),
+            Matrix::new([[2.0], [3.0], [7.0], [0.0]])
         );
     }
 
