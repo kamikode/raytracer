@@ -64,6 +64,19 @@ impl<const N: usize> Matrix<N, N> {
     }
 }
 
+impl Matrix<4, 4> {
+    pub fn translation(x: Float, y: Float, z: Float) -> Self {
+        Matrix {
+            data: [
+                [1.0, 0.0, 0.0, x],
+                [0.0, 1.0, 0.0, y],
+                [0.0, 0.0, 1.0, z],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+        }
+    }
+}
+
 pub trait Invertible
 where
     Self: Sized,
@@ -433,6 +446,36 @@ mod tests {
         assert_approx_eq!(mat.matmul(inv), eye);
         assert_approx_eq!(eye.inverse().unwrap(), eye);
         assert_eq!(Matrix4x4::ones().inverse(), None);
+    }
+
+    #[test]
+    fn translation_for_point() {
+        let t = Matrix::translation(5.0, -3.0, 2.0);
+        let p = Point::new(-3.0, 4.0, 5.0);
+        assert_eq!(
+            Point::try_from(t.matmul(p)).unwrap(),
+            Point::new(2.0, 1.0, 7.0)
+        );
+    }
+
+    #[test]
+    fn inverse_translation_for_point() {
+        let t = Matrix::translation(5.0, -3.0, 2.0).inverse().unwrap();
+        let p = Point::new(-3.0, 4.0, 5.0);
+        assert_eq!(
+            Point::try_from(t.matmul(p)).unwrap(),
+            Point::new(-8.0, 7.0, 3.0)
+        );
+    }
+
+    #[test]
+    fn translation_for_vector() {
+        let t = Matrix::translation(5.0, -3.0, 2.0);
+        let v = Vector::new(-3.0, 4.0, 5.0);
+        assert_eq!(
+            Vector::try_from(t.matmul(v)).unwrap(),
+            Vector::new(-3.0, 4.0, 5.0)
+        );
     }
 
     #[test]
