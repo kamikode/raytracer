@@ -12,25 +12,23 @@ macro_rules! impl_tuple {
             x: Float,
             y: Float,
             z: Float,
-            w: Float,
         }
 
         impl $name {
             pub fn new(x: Float, y: Float, z: Float) -> Self {
-                Self { x, y, z, w: $w }
+                Self { x, y, z }
             }
         }
 
         impl fmt::Display for $name {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                f.write_str("[")?;
+                f.write_str(stringify!($name))?;
+                f.write_str(" [")?;
                 fmt::Display::fmt(&self.x, f)?;
                 f.write_str(", ")?;
                 fmt::Display::fmt(&self.y, f)?;
                 f.write_str(", ")?;
                 fmt::Display::fmt(&self.z, f)?;
-                f.write_str(", ")?;
-                fmt::Display::fmt(&self.w, f)?;
                 f.write_str("]")
             }
         }
@@ -49,7 +47,7 @@ macro_rules! impl_tuple {
                     let x = value[0][0];
                     let y = value[1][0];
                     let z = value[2][0];
-                    Ok($name { x, y, z, w: $w })
+                    Ok($name { x, y, z })
                 } else {
                     Err(format!(
                         "cannot convert matrix with entries x={}, y={}, z={}, w={} to {}, {}s must have w={}",
@@ -164,7 +162,6 @@ mod tests {
             assert!(approx_eq!($tuple1.x, $tuple2.x));
             assert!(approx_eq!($tuple1.y, $tuple2.y));
             assert!(approx_eq!($tuple1.z, $tuple2.z));
-            assert!(approx_eq!($tuple1.w, $tuple2.w));
         };
     }
 
@@ -174,7 +171,6 @@ mod tests {
         assert_eq!(p.x, 4.3);
         assert_eq!(p.y, -4.2);
         assert_eq!(p.z, 3.1);
-        assert_eq!(p.w, 1.0);
     }
 
     #[test]
@@ -183,7 +179,6 @@ mod tests {
         assert_eq!(v.x, 4.3);
         assert_eq!(v.y, -4.2);
         assert_eq!(v.z, 3.1);
-        assert_eq!(v.w, 0.0);
     }
 
     #[test]
@@ -221,15 +216,15 @@ mod tests {
     #[test]
     fn point_to_string() {
         let p = Point::new(4.3, -4.2, 3.1);
-        assert_eq!(p.to_string(), "[4.3, -4.2, 3.1, 1]");
-        assert_eq!(format!("{:+.2}", p), "[+4.30, -4.20, +3.10, +1.00]");
+        assert_eq!(p.to_string(), "Point [4.3, -4.2, 3.1]");
+        assert_eq!(format!("{:+.2}", p), "Point [+4.30, -4.20, +3.10]");
     }
 
     #[test]
     fn vector_to_string() {
         let v = Vector::new(4.3, -4.2, 3.1);
-        assert_eq!(v.to_string(), "[4.3, -4.2, 3.1, 0]");
-        assert_eq!(format!("{:+.2}", v), "[+4.30, -4.20, +3.10, +0.00]");
+        assert_eq!(v.to_string(), "Vector [4.3, -4.2, 3.1]");
+        assert_eq!(format!("{:+.2}", v), "Vector [+4.30, -4.20, +3.10]");
     }
 
     #[test]
