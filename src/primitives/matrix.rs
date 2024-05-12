@@ -331,20 +331,6 @@ mod tests {
     }
 
     #[test]
-    fn from_vector() {
-        let v = Vector::new(0.0, 1.0, 2.0);
-        let m = Matrix::from(v);
-        assert_eq!(m, Matrix::<4, 1>::new([[0.0], [1.0], [2.0], [0.0]]));
-    }
-
-    #[test]
-    fn from_point() {
-        let p = Point::new(0.0, 1.0, 2.0);
-        let m = Matrix::from(p);
-        assert_eq!(m, Matrix::<4, 1>::new([[0.0], [1.0], [2.0], [1.0]]));
-    }
-
-    #[test]
     fn matrix_point_multiplication() {
         let p = Point::new(1.0, 2.0, 3.0);
         let m = Matrix4x4::new([

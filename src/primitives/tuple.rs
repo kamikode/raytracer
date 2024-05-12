@@ -41,6 +41,30 @@ macro_rules! impl_tuple {
             }
         }
 
+        impl TryFrom<Matrix<4, 1>> for $name {
+            type Error = String;
+
+            fn try_from(value: Matrix<4, 1>) -> Result<Self, Self::Error> {
+                if value[3][0] == $w {
+                    let x = value[0][0];
+                    let y = value[1][0];
+                    let z = value[2][0];
+                    Ok($name { x, y, z, w: $w })
+                } else {
+                    Err(format!(
+                        "cannot convert matrix with entries x={}, y={}, z={}, w={} to {}, {}s must have w={}",
+                        value[0][0],
+                        value[1][0],
+                        value[2][0],
+                        value[3][0],
+                        stringify!($name),
+                        stringify!($name),
+                        $w
+                    ))
+                }
+            }
+        }
+
         impl Tuple for $name {}
     };
 }
@@ -160,6 +184,38 @@ mod tests {
         assert_eq!(v.y, -4.2);
         assert_eq!(v.z, 3.1);
         assert_eq!(v.w, 0.0);
+    }
+
+    #[test]
+    fn matrix_from_point() {
+        let p = Point::new(0.0, 1.0, 2.0);
+        let m = Matrix::from(p);
+        assert_eq!(m, Matrix::<4, 1>::new([[0.0], [1.0], [2.0], [1.0]]));
+    }
+
+    #[test]
+    fn matrix_from_vector() {
+        let v = Vector::new(0.0, 1.0, 2.0);
+        let m = Matrix::from(v);
+        assert_eq!(m, Matrix::<4, 1>::new([[0.0], [1.0], [2.0], [0.0]]));
+    }
+
+    #[test]
+    fn point_from_matrix() {
+        let m = Matrix::<4, 1>::new([[0.0], [1.0], [2.0], [1.0]]);
+        let p = Point::try_from(m).unwrap();
+        assert_eq!(p, Point::new(0.0, 1.0, 2.0));
+        assert!(Point::try_from(Matrix::<4, 1>::new([[0.0], [1.0], [2.0], [0.0]])).is_err());
+        assert!(Point::try_from(Matrix::<4, 1>::new([[0.0], [1.0], [2.0], [0.5]])).is_err());
+    }
+
+    #[test]
+    fn vector_from_matrix() {
+        let m = Matrix::<4, 1>::new([[0.0], [1.0], [2.0], [0.0]]);
+        let v = Vector::try_from(m).unwrap();
+        assert_eq!(v, Vector::new(0.0, 1.0, 2.0));
+        assert!(Vector::try_from(Matrix::<4, 1>::new([[0.0], [1.0], [2.0], [1.0]])).is_err());
+        assert!(Vector::try_from(Matrix::<4, 1>::new([[0.0], [1.0], [2.0], [0.5]])).is_err());
     }
 
     #[test]
