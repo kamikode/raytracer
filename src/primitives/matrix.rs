@@ -89,6 +89,17 @@ impl Matrix<4, 4> {
             ],
         }
     }
+
+    pub fn scaling(x: Float, y: Float, z: Float) -> Self {
+        Matrix {
+            data: [
+                [x, 0.0, 0.0, 0.0],
+                [0.0, y, 0.0, 0.0],
+                [0.0, 0.0, z, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+        }
+    }
 }
 
 pub trait Invertible
@@ -485,7 +496,17 @@ mod tests {
     }
 
     #[test]
-    fn inverse_translation_for_point() {
+    fn translation_for_vector() {
+        let t = Matrix::translation(5.0, -3.0, 2.0);
+        let v = Vector::new(-3.0, 4.0, 5.0);
+        assert_eq!(
+            Vector::try_from(t.matmul(v)).unwrap(),
+            Vector::new(-3.0, 4.0, 5.0)
+        );
+    }
+
+    #[test]
+    fn inverse_translation() {
         let t = Matrix::translation(5.0, -3.0, 2.0).inverse().unwrap();
         let p = Point::new(-3.0, 4.0, 5.0);
         assert_eq!(
@@ -495,12 +516,42 @@ mod tests {
     }
 
     #[test]
-    fn translation_for_vector() {
-        let t = Matrix::translation(5.0, -3.0, 2.0);
-        let v = Vector::new(-3.0, 4.0, 5.0);
+    fn scaling_for_point() {
+        let s: Matrix<4, 4> = Matrix::scaling(2.0, 3.0, 4.0);
+        let p = Point::new(-4.0, 6.0, 8.0);
         assert_eq!(
-            Vector::try_from(t.matmul(v)).unwrap(),
-            Vector::new(-3.0, 4.0, 5.0)
+            Point::try_from(s.matmul(p)).unwrap(),
+            Point::new(-8.0, 18.0, 32.0)
+        );
+    }
+
+    #[test]
+    fn scaling_for_vector() {
+        let s: Matrix<4, 4> = Matrix::scaling(2.0, 3.0, 4.0);
+        let v = Vector::new(-4.0, 6.0, 8.0);
+        assert_eq!(
+            Vector::try_from(s.matmul(v)).unwrap(),
+            Vector::new(-8.0, 18.0, 32.0)
+        );
+    }
+
+    #[test]
+    fn inverse_scaling() {
+        let t = Matrix::scaling(2.0, 3.0, 4.0).inverse().unwrap();
+        let p = Point::new(-4.0, 6.0, 8.0);
+        assert_eq!(
+            Point::try_from(t.matmul(p)).unwrap(),
+            Point::new(-2.0, 2.0, 2.0)
+        );
+    }
+
+    #[test]
+    fn reflection_as_negative_scaling() {
+        let t = Matrix::scaling(-1.0, 1.0, 1.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        assert_eq!(
+            Point::try_from(t.matmul(p)).unwrap(),
+            Point::new(-2.0, 3.0, 4.0)
         );
     }
 
