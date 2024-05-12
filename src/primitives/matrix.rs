@@ -100,6 +100,42 @@ impl Matrix<4, 4> {
             ],
         }
     }
+
+    pub fn rotation_x(angle: Float) -> Self {
+        let (sin, cos) = angle.sin_cos();
+        Matrix {
+            data: [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, cos, -sin, 0.0],
+                [0.0, sin, cos, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+        }
+    }
+
+    pub fn rotation_y(angle: Float) -> Self {
+        let (sin, cos) = angle.sin_cos();
+        Matrix {
+            data: [
+                [cos, 0.0, sin, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [-sin, 0.0, cos, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+        }
+    }
+
+    pub fn rotation_z(angle: Float) -> Self {
+        let (sin, cos) = angle.sin_cos();
+        Matrix {
+            data: [
+                [cos, -sin, 0.0, 0.0],
+                [sin, cos, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+        }
+    }
 }
 
 pub trait Invertible
@@ -537,21 +573,66 @@ mod tests {
 
     #[test]
     fn inverse_scaling() {
-        let t = Matrix::scaling(2.0, 3.0, 4.0).inverse().unwrap();
+        let s = Matrix::scaling(2.0, 3.0, 4.0).inverse().unwrap();
         let p = Point::new(-4.0, 6.0, 8.0);
         assert_eq!(
-            Point::try_from(t.matmul(p)).unwrap(),
+            Point::try_from(s.matmul(p)).unwrap(),
             Point::new(-2.0, 2.0, 2.0)
         );
     }
 
     #[test]
     fn reflection_as_negative_scaling() {
-        let t = Matrix::scaling(-1.0, 1.0, 1.0);
+        let s = Matrix::scaling(-1.0, 1.0, 1.0);
         let p = Point::new(2.0, 3.0, 4.0);
         assert_eq!(
-            Point::try_from(t.matmul(p)).unwrap(),
+            Point::try_from(s.matmul(p)).unwrap(),
             Point::new(-2.0, 3.0, 4.0)
+        );
+    }
+
+    #[test]
+    fn rotation_around_x_axis() {
+        let r = Matrix::rotation_x(std::f64::consts::PI);
+        let e = Matrix::<4, 4>::identity();
+        assert_approx_eq!(
+            r.matmul(e),
+            Matrix::new([
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, -1.0, 0.0, 0.0],
+                [0.0, 0.0, -1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0]
+            ])
+        );
+    }
+
+    #[test]
+    fn rotation_around_y_axis() {
+        let r = Matrix::rotation_y(std::f64::consts::PI);
+        let e = Matrix::<4, 4>::identity();
+        assert_approx_eq!(
+            r.matmul(e),
+            Matrix::new([
+                [-1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, -1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0]
+            ])
+        );
+    }
+
+    #[test]
+    fn rotation_around_z_axis() {
+        let r = Matrix::rotation_z(std::f64::consts::PI);
+        let e = Matrix::<4, 4>::identity();
+        assert_approx_eq!(
+            r.matmul(e),
+            Matrix::new([
+                [-1.0, 0.0, 0.0, 0.0],
+                [0.0, -1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0]
+            ])
         );
     }
 
