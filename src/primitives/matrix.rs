@@ -64,6 +64,20 @@ impl<const N: usize> Matrix<N, N> {
     }
 }
 
+impl Matrix<4, 1> {
+    pub fn point(x: Float, y: Float, z: Float) -> Self {
+        Matrix {
+            data: [[x], [y], [z], [1.0]],
+        }
+    }
+
+    pub fn vector(x: Float, y: Float, z: Float) -> Self {
+        Matrix {
+            data: [[x], [y], [z], [0.0]],
+        }
+    }
+}
+
 impl Matrix<4, 4> {
     pub fn translation(x: Float, y: Float, z: Float) -> Self {
         Matrix {
@@ -309,6 +323,18 @@ mod tests {
         assert_eq!(m[0][1], 0.0);
         assert_eq!(m[1][0], 0.0);
         assert_eq!(m[1][1], 1.0);
+    }
+
+    #[test]
+    fn point_constructor() {
+        let m = Matrix::<4, 1>::point(3.0, -5.0, 7.0);
+        assert_eq!(Point::try_from(m).unwrap(), Point::new(3.0, -5.0, 7.0));
+    }
+
+    #[test]
+    fn vector_constructor() {
+        let m = Matrix::<4, 1>::vector(3.0, -5.0, 7.0);
+        assert_eq!(Vector::try_from(m).unwrap(), Vector::new(3.0, -5.0, 7.0));
     }
 
     #[test]
