@@ -1,6 +1,6 @@
 use crate::primitives::float::Float;
 use crate::Sphere;
-use crate::{Point, Vector};
+use crate::{Intersection, Point, Vector};
 
 #[derive(Debug)]
 pub struct Ray {
@@ -14,7 +14,7 @@ impl Ray {
     }
 
     // TODO: Later this function should work with more things than spheres.
-    pub fn intersect(&self, _object: Sphere) -> Vec<Float> {
+    pub fn intersect(&self, object: Sphere) -> Vec<Intersection> {
         // Note: Spheres are hardcoded to be at the origin for now.
         let sphere_to_ray = self.origin - Point::new(0.0, 0.0, 0.0);
         let a = self.direction.squared_length();
@@ -26,7 +26,16 @@ impl Ray {
         } else {
             let sqrt = Float::sqrt(discriminant);
             let div = 1.0 / (2.0 * a);
-            vec![(-b - sqrt) * div, (-b + sqrt) * div]
+            vec![
+                Intersection {
+                    t: (-b - sqrt) * div,
+                    object,
+                },
+                Intersection {
+                    t: (-b + sqrt) * div,
+                    object,
+                },
+            ]
         }
     }
 }
@@ -57,6 +66,19 @@ mod tests {
     }
 
     #[test]
+    fn intersect_sets_the_object_on_the_intersection() {
+        let ray = Ray {
+            origin: Point::new(0.0, 0.0, -5.0),
+            direction: Vector::new(0.0, 0.0, 1.0),
+        };
+        let sphere = Sphere {};
+        let intersections = ray.intersect(sphere);
+        assert_eq!(intersections.len(), 2);
+        assert_eq!(intersections.first().unwrap().object, sphere);
+        assert_eq!(intersections.last().unwrap().object, sphere);
+    }
+
+    #[test]
     fn ray_intersects_sphere_at_two_points() {
         let ray = Ray {
             origin: Point::new(0.0, 0.0, -5.0),
@@ -65,8 +87,8 @@ mod tests {
         let sphere = Sphere {};
         let ts = ray.intersect(sphere);
         assert_eq!(ts.len(), 2);
-        assert_eq!(ts.first(), Some(&4.0));
-        assert_eq!(ts.last(), Some(&6.0));
+        assert_eq!(ts.first().unwrap().t, 4.0);
+        assert_eq!(ts.last().unwrap().t, 6.0);
     }
 
     #[test]
@@ -78,8 +100,8 @@ mod tests {
         let sphere = Sphere {};
         let ts = ray.intersect(sphere);
         assert_eq!(ts.len(), 2);
-        assert_eq!(ts.first(), Some(&5.0));
-        assert_eq!(ts.last(), Some(&5.0));
+        assert_eq!(ts.first().unwrap().t, 5.0);
+        assert_eq!(ts.last().unwrap().t, 5.0);
     }
 
     #[test]
@@ -102,8 +124,8 @@ mod tests {
         let sphere = Sphere {};
         let ts = ray.intersect(sphere);
         assert_eq!(ts.len(), 2);
-        assert_eq!(ts.first(), Some(&-1.0));
-        assert_eq!(ts.last(), Some(&1.0));
+        assert_eq!(ts.first().unwrap().t, -1.0);
+        assert_eq!(ts.last().unwrap().t, 1.0);
     }
 
     #[test]
@@ -115,7 +137,7 @@ mod tests {
         let sphere = Sphere {};
         let ts = ray.intersect(sphere);
         assert_eq!(ts.len(), 2);
-        assert_eq!(ts.first(), Some(&-6.0));
-        assert_eq!(ts.last(), Some(&-4.0));
+        assert_eq!(ts.first().unwrap().t, -6.0);
+        assert_eq!(ts.last().unwrap().t, -4.0);
     }
 }
