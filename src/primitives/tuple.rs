@@ -63,6 +63,16 @@ macro_rules! impl_tuple {
 impl_tuple!(Point, 1.0);
 impl_tuple!(Vector, 0.0);
 
+impl Point {
+    pub fn origin() -> Point {
+        Point {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }
+    }
+}
+
 macro_rules! impl_add {
     ($Lhs:ident, $Rhs:ident, $Out:ident) => {
         impl Add<$Rhs> for $Lhs {
@@ -197,6 +207,14 @@ mod tests {
         assert_eq!(p.x, 4.3);
         assert_eq!(p.y, -4.2);
         assert_eq!(p.z, 3.1);
+    }
+
+    #[test]
+    fn create_origin() {
+        let p = Point::origin();
+        assert_eq!(p.x, 0.0);
+        assert_eq!(p.y, 0.0);
+        assert_eq!(p.z, 0.0);
     }
 
     #[test]

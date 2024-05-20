@@ -12,7 +12,7 @@ mod tests {
 
     #[test]
     fn create_intersection() {
-        let sphere = Sphere {};
+        let sphere = Sphere::default();
         let intersection = Intersection {
             t: 3.5,
             object: sphere,
@@ -23,7 +23,7 @@ mod tests {
 
     #[test]
     fn aggregate_intersections() {
-        let sphere = Sphere {};
+        let sphere = Sphere::default();
         let i1 = Intersection {
             t: 1.0,
             object: sphere,

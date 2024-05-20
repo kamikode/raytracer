@@ -1,5 +1,5 @@
 use crate::primitives::float::Float;
-use crate::{Intersection, Matrix4x4, Point, Sphere, Vector};
+use crate::{Intersection, Invertible, Matrix4x4, Point, Sphere, Vector};
 
 #[derive(Debug)]
 pub struct Ray {
@@ -27,15 +27,14 @@ impl Ray {
 
     // TODO: Later this function should work with more things than spheres.
     pub fn intersect(&self, object: Sphere) -> Vec<Intersection> {
-        // Note: Spheres are hardcoded to be at the origin for now.
-        let sphere_to_ray = self.origin
-            - Point {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            };
-        let a = self.direction.squared_length();
-        let b = 2.0 * self.direction.dot(sphere_to_ray);
+        let inverse_transform = match object.transform.inverse() {
+            Some(m) => m,
+            None => return vec![],
+        };
+        let ray = self.transform(inverse_transform);
+        let sphere_to_ray = ray.origin - Point::origin();
+        let a = ray.direction.squared_length();
+        let b = 2.0 * ray.direction.dot(sphere_to_ray);
         let c = sphere_to_ray.squared_length() - 1.0;
         let discriminant = b * b - 4.0 * a * c;
         if discriminant < 0.0 {
@@ -220,7 +219,7 @@ mod tests {
                 z: 1.0,
             },
         };
-        let sphere = Sphere {};
+        let sphere = Sphere::default();
         let intersections = ray.intersect(sphere);
         assert_eq!(intersections.len(), 2);
         assert_eq!(intersections.first().unwrap().object, sphere);
@@ -241,11 +240,11 @@ mod tests {
                 z: 1.0,
             },
         };
-        let sphere = Sphere {};
-        let ts = ray.intersect(sphere);
-        assert_eq!(ts.len(), 2);
-        assert_eq!(ts.first().unwrap().t, 4.0);
-        assert_eq!(ts.last().unwrap().t, 6.0);
+        let sphere = Sphere::default();
+        let intersections = ray.intersect(sphere);
+        assert_eq!(intersections.len(), 2);
+        assert_eq!(intersections.first().unwrap().t, 4.0);
+        assert_eq!(intersections.last().unwrap().t, 6.0);
     }
 
     #[test]
@@ -262,11 +261,11 @@ mod tests {
                 z: 1.0,
             },
         };
-        let sphere = Sphere {};
-        let ts = ray.intersect(sphere);
-        assert_eq!(ts.len(), 2);
-        assert_eq!(ts.first().unwrap().t, 5.0);
-        assert_eq!(ts.last().unwrap().t, 5.0);
+        let sphere = Sphere::default();
+        let intersections = ray.intersect(sphere);
+        assert_eq!(intersections.len(), 2);
+        assert_eq!(intersections.first().unwrap().t, 5.0);
+        assert_eq!(intersections.last().unwrap().t, 5.0);
     }
 
     #[test]
@@ -283,9 +282,9 @@ mod tests {
                 z: 1.0,
             },
         };
-        let sphere = Sphere {};
-        let ts = ray.intersect(sphere);
-        assert_eq!(ts.len(), 0);
+        let sphere = Sphere::default();
+        let intersections = ray.intersect(sphere);
+        assert_eq!(intersections.len(), 0);
     }
 
     #[test]
@@ -302,11 +301,11 @@ mod tests {
                 z: 1.0,
             },
         };
-        let sphere = Sphere {};
-        let ts = ray.intersect(sphere);
-        assert_eq!(ts.len(), 2);
-        assert_eq!(ts.first().unwrap().t, -1.0);
-        assert_eq!(ts.last().unwrap().t, 1.0);
+        let sphere = Sphere::default();
+        let intersections = ray.intersect(sphere);
+        assert_eq!(intersections.len(), 2);
+        assert_eq!(intersections.first().unwrap().t, -1.0);
+        assert_eq!(intersections.last().unwrap().t, 1.0);
     }
 
     #[test]
@@ -323,16 +322,60 @@ mod tests {
                 z: 1.0,
             },
         };
-        let sphere = Sphere {};
-        let ts = ray.intersect(sphere);
-        assert_eq!(ts.len(), 2);
-        assert_eq!(ts.first().unwrap().t, -6.0);
-        assert_eq!(ts.last().unwrap().t, -4.0);
+        let sphere = Sphere::default();
+        let intersections = ray.intersect(sphere);
+        assert_eq!(intersections.len(), 2);
+        assert_eq!(intersections.first().unwrap().t, -6.0);
+        assert_eq!(intersections.last().unwrap().t, -4.0);
+    }
+
+    #[test]
+    fn ray_intersects_scaled_sphere() {
+        let ray = Ray {
+            origin: Point {
+                x: 0.0,
+                y: 0.0,
+                z: -5.0,
+            },
+            direction: Vector {
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
+        };
+        let sphere = Sphere {
+            transform: Matrix4x4::scaling(2.0, 2.0, 2.0),
+        };
+        let intersections = ray.intersect(sphere);
+        assert_eq!(intersections.len(), 2);
+        assert_eq!(intersections.first().unwrap().t, 3.0);
+        assert_eq!(intersections.last().unwrap().t, 7.0);
+    }
+
+    #[test]
+    fn ray_intersects_translated_sphere() {
+        let ray = Ray {
+            origin: Point {
+                x: 0.0,
+                y: 0.0,
+                z: -5.0,
+            },
+            direction: Vector {
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
+        };
+        let sphere = Sphere {
+            transform: Matrix4x4::translation(5.0, 0.0, 0.0),
+        };
+        let intersections = ray.intersect(sphere);
+        assert_eq!(intersections.len(), 0);
     }
 
     #[test]
     fn get_hit_when_all_intersections_have_positive_t() {
-        let s = Sphere {};
+        let s = Sphere::default();
         let i1 = Intersection { t: 1.0, object: s };
         let i2 = Intersection { t: 2.0, object: s };
         let xs = vec![i1, i2];
@@ -342,7 +385,7 @@ mod tests {
 
     #[test]
     fn get_hit_when_some_intersections_have_negative_t() {
-        let s = Sphere {};
+        let s = Sphere::default();
         let i1 = Intersection { t: -1.0, object: s };
         let i2 = Intersection { t: 1.0, object: s };
         let xs = vec![i1, i2];
@@ -352,7 +395,7 @@ mod tests {
 
     #[test]
     fn get_hit_when_all_intersections_have_negative_t() {
-        let s = Sphere {};
+        let s = Sphere::default();
         let i1 = Intersection { t: -2.0, object: s };
         let i2 = Intersection { t: -1.0, object: s };
         let xs = vec![i1, i2];
@@ -362,7 +405,7 @@ mod tests {
 
     #[test]
     fn get_hit_is_always_lowest_non_negative_t() {
-        let s = Sphere {};
+        let s = Sphere::default();
         let i1 = Intersection { t: 5.0, object: s };
         let i2 = Intersection { t: 7.0, object: s };
         let i3 = Intersection { t: -3.0, object: s };
