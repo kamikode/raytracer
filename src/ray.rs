@@ -1,6 +1,5 @@
 use crate::primitives::float::Float;
-use crate::Sphere;
-use crate::{Intersection, Point, Vector};
+use crate::{Intersection, Point, Sphere, Vector};
 
 #[derive(Debug)]
 pub struct Ray {
@@ -38,6 +37,18 @@ impl Ray {
             ]
         }
     }
+}
+
+fn get_hit(intersections: &[Intersection]) -> Option<Intersection> {
+    let mut hit = None;
+    let mut min_t = Float::INFINITY;
+    for intersection in intersections {
+        if intersection.t > 0.0 && intersection.t < min_t {
+            hit = Some(*intersection);
+            min_t = intersection.t;
+        }
+    }
+    hit
 }
 
 #[cfg(test)]
@@ -139,5 +150,47 @@ mod tests {
         assert_eq!(ts.len(), 2);
         assert_eq!(ts.first().unwrap().t, -6.0);
         assert_eq!(ts.last().unwrap().t, -4.0);
+    }
+
+    #[test]
+    fn get_hit_when_all_intersections_have_positive_t() {
+        let s = Sphere {};
+        let i1 = Intersection { t: 1.0, object: s };
+        let i2 = Intersection { t: 2.0, object: s };
+        let xs = vec![i1, i2];
+        let i = get_hit(&xs);
+        assert_eq!(i, Some(i1));
+    }
+
+    #[test]
+    fn get_hit_when_some_intersections_have_negative_t() {
+        let s = Sphere {};
+        let i1 = Intersection { t: -1.0, object: s };
+        let i2 = Intersection { t: 1.0, object: s };
+        let xs = vec![i1, i2];
+        let i = get_hit(&xs);
+        assert_eq!(i, Some(i2));
+    }
+
+    #[test]
+    fn get_hit_when_all_intersections_have_negative_t() {
+        let s = Sphere {};
+        let i1 = Intersection { t: -2.0, object: s };
+        let i2 = Intersection { t: -1.0, object: s };
+        let xs = vec![i1, i2];
+        let i = get_hit(&xs);
+        assert_eq!(i, None);
+    }
+
+    #[test]
+    fn get_hit_is_always_lowest_non_negative_t() {
+        let s = Sphere {};
+        let i1 = Intersection { t: 5.0, object: s };
+        let i2 = Intersection { t: 7.0, object: s };
+        let i3 = Intersection { t: -3.0, object: s };
+        let i4 = Intersection { t: 2.0, object: s };
+        let xs = vec![i1, i2, i3, i4];
+        let i = get_hit(&xs);
+        assert_eq!(i, Some(i4));
     }
 }

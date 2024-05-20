@@ -1,6 +1,6 @@
 use crate::{primitives::float::Float, Sphere};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Intersection {
     pub t: Float,
     pub object: Sphere,
