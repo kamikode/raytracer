@@ -1,6 +1,6 @@
 use crate::{Color, Float};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Material {
     color: Color,
     ambient: Float,

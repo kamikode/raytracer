@@ -6,6 +6,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let sphere = Sphere {
         transform: Matrix4x4::scaling(1.0, 0.5, 1.0)
             .matmul(Matrix4x4::rotation_z(std::f64::consts::PI as Float / 5.0)),
+        material: Material::default(),
     };
     let normal = sphere.normal_at(Point {
         x: 0.0,

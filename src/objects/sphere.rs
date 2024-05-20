@@ -1,14 +1,16 @@
-use crate::{Invertible, Matrix4x4, Point, Vector};
+use crate::{Invertible, Material, Matrix4x4, Point, Vector};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Sphere {
     pub transform: Matrix4x4,
+    pub material: Material,
 }
 
 impl Default for Sphere {
     fn default() -> Self {
         Sphere {
             transform: Matrix4x4::identity(),
+            material: Material::default(),
         }
     }
 }
@@ -56,15 +58,20 @@ mod tests {
     }
 
     #[test]
-    fn sphere_default_transform_is_identity() {
+    fn sphere_default_constructor() {
         let sphere = Sphere::default();
-        assert_matrix_approx_eq!(sphere.transform, Matrix4x4::identity());
+        assert_eq!(sphere.transform, Matrix4x4::identity());
+        assert_eq!(sphere.material, Material::default());
     }
 
     #[test]
     fn sphere_with_non_default_transform() {
         let transform = Matrix4x4::translation(2.0, 3.0, 4.0);
-        let sphere = Sphere { transform };
+        let material = Material::default();
+        let sphere = Sphere {
+            transform,
+            material,
+        };
         assert_matrix_approx_eq!(sphere.transform, transform);
     }
 
@@ -114,6 +121,7 @@ mod tests {
     fn normal_on_a_translated_sphere() {
         let sphere = Sphere {
             transform: Matrix4x4::translation(0.0, 1.0, 0.0),
+            material: Material::default(),
         };
         let normal = sphere.normal_at(Point {
             x: 0.0,
@@ -135,6 +143,7 @@ mod tests {
         let sphere = Sphere {
             transform: Matrix4x4::scaling(1.0, 0.5, 1.0)
                 .matmul(Matrix4x4::rotation_z(std::f64::consts::PI as Float / 5.0)),
+            material: Material::default(),
         };
         let normal = sphere.normal_at(Point {
             x: 0.0,

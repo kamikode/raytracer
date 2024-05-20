@@ -71,6 +71,7 @@ pub fn get_hit(intersections: &[Intersection]) -> Option<Intersection> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Material;
 
     #[test]
     fn create_ray() {
@@ -345,6 +346,7 @@ mod tests {
         };
         let sphere = Sphere {
             transform: Matrix4x4::scaling(2.0, 2.0, 2.0),
+            material: Material::default(),
         };
         let intersections = ray.intersect(sphere);
         assert_eq!(intersections.len(), 2);
@@ -368,6 +370,7 @@ mod tests {
         };
         let sphere = Sphere {
             transform: Matrix4x4::translation(5.0, 0.0, 0.0),
+            material: Material::default(),
         };
         let intersections = ray.intersect(sphere);
         assert_eq!(intersections.len(), 0);
