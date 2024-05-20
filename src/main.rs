@@ -25,5 +25,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("{:+.3}", p);
     println!("{:+.3}", v);
     println!("{:+.3}", m);
+
+    let ray = Ray {
+        origin: Point::new(0.0, 0.0, 0.0),
+        direction: Vector::new(1.0, 0.0, 0.0),
+    };
+    println!("{:?}", ray);
     Ok(())
 }
