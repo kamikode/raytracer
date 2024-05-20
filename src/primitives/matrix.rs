@@ -386,13 +386,27 @@ mod tests {
     #[test]
     fn point_constructor() {
         let m = Matrix::<4, 1>::point(3.0, -5.0, 7.0);
-        assert_eq!(Point::try_from(m).unwrap(), Point::new(3.0, -5.0, 7.0));
+        assert_eq!(
+            Point::try_from(m).unwrap(),
+            Point {
+                x: 3.0,
+                y: -5.0,
+                z: 7.0,
+            }
+        );
     }
 
     #[test]
     fn vector_constructor() {
         let m = Matrix::<4, 1>::vector(3.0, -5.0, 7.0);
-        assert_eq!(Vector::try_from(m).unwrap(), Vector::new(3.0, -5.0, 7.0));
+        assert_eq!(
+            Vector::try_from(m).unwrap(),
+            Vector {
+                x: 3.0,
+                y: -5.0,
+                z: 7.0
+            }
+        );
     }
 
     #[test]
@@ -429,7 +443,11 @@ mod tests {
 
     #[test]
     fn matrix_point_multiplication() {
-        let p = Point::new(1.0, 2.0, 3.0);
+        let p = Point {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+        };
         let m = Matrix4x4::new([
             [1.0, 2.0, 3.0, 4.0],
             [2.0, 4.0, 4.0, 2.0],
@@ -442,7 +460,11 @@ mod tests {
 
     #[test]
     fn matrix_vector_multiplication() {
-        let v = Vector::new(1.0, 2.0, 3.0);
+        let v = Vector {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+        };
         let m = Matrix4x4::new([
             [1.0, 2.0, 3.0, 4.0],
             [2.0, 4.0, 4.0, 2.0],
@@ -535,70 +557,126 @@ mod tests {
     #[test]
     fn translation_for_point() {
         let t = Matrix::translation(5.0, -3.0, 2.0);
-        let p = Point::new(-3.0, 4.0, 5.0);
+        let p = Point {
+            x: -3.0,
+            y: 4.0,
+            z: 5.0,
+        };
         assert_eq!(
             Point::try_from(t.matmul(p)).unwrap(),
-            Point::new(2.0, 1.0, 7.0)
+            Point {
+                x: 2.0,
+                y: 1.0,
+                z: 7.0
+            }
         );
     }
 
     #[test]
     fn translation_for_vector() {
         let t = Matrix::translation(5.0, -3.0, 2.0);
-        let v = Vector::new(-3.0, 4.0, 5.0);
+        let v = Vector {
+            x: -3.0,
+            y: 4.0,
+            z: 5.0,
+        };
         assert_eq!(
             Vector::try_from(t.matmul(v)).unwrap(),
-            Vector::new(-3.0, 4.0, 5.0)
+            Vector {
+                x: -3.0,
+                y: 4.0,
+                z: 5.0
+            }
         );
     }
 
     #[test]
     fn inverse_translation() {
         let t = Matrix::translation(5.0, -3.0, 2.0).inverse().unwrap();
-        let p = Point::new(-3.0, 4.0, 5.0);
+        let p = Point {
+            x: -3.0,
+            y: 4.0,
+            z: 5.0,
+        };
         assert_eq!(
             Point::try_from(t.matmul(p)).unwrap(),
-            Point::new(-8.0, 7.0, 3.0)
+            Point {
+                x: -8.0,
+                y: 7.0,
+                z: 3.0
+            }
         );
     }
 
     #[test]
     fn scaling_for_point() {
         let s: Matrix<4, 4> = Matrix::scaling(2.0, 3.0, 4.0);
-        let p = Point::new(-4.0, 6.0, 8.0);
+        let p = Point {
+            x: -4.0,
+            y: 6.0,
+            z: 8.0,
+        };
         assert_eq!(
             Point::try_from(s.matmul(p)).unwrap(),
-            Point::new(-8.0, 18.0, 32.0)
+            Point {
+                x: -8.0,
+                y: 18.0,
+                z: 32.0
+            }
         );
     }
 
     #[test]
     fn scaling_for_vector() {
         let s: Matrix<4, 4> = Matrix::scaling(2.0, 3.0, 4.0);
-        let v = Vector::new(-4.0, 6.0, 8.0);
+        let v = Vector {
+            x: -4.0,
+            y: 6.0,
+            z: 8.0,
+        };
         assert_eq!(
             Vector::try_from(s.matmul(v)).unwrap(),
-            Vector::new(-8.0, 18.0, 32.0)
+            Vector {
+                x: -8.0,
+                y: 18.0,
+                z: 32.0
+            }
         );
     }
 
     #[test]
     fn inverse_scaling() {
         let s = Matrix::scaling(2.0, 3.0, 4.0).inverse().unwrap();
-        let p = Point::new(-4.0, 6.0, 8.0);
+        let p = Point {
+            x: -4.0,
+            y: 6.0,
+            z: 8.0,
+        };
         assert_eq!(
             Point::try_from(s.matmul(p)).unwrap(),
-            Point::new(-2.0, 2.0, 2.0)
+            Point {
+                x: -2.0,
+                y: 2.0,
+                z: 2.0
+            }
         );
     }
 
     #[test]
     fn reflection_as_negative_scaling() {
         let s = Matrix::scaling(-1.0, 1.0, 1.0);
-        let p = Point::new(2.0, 3.0, 4.0);
+        let p = Point {
+            x: 2.0,
+            y: 3.0,
+            z: 4.0,
+        };
         assert_eq!(
             Point::try_from(s.matmul(p)).unwrap(),
-            Point::new(-2.0, 3.0, 4.0)
+            Point {
+                x: -2.0,
+                y: 3.0,
+                z: 4.0
+            }
         );
     }
 

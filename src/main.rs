@@ -14,8 +14,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     canvas.set_pixel(2, 1, Color::black())?;
     canvas.write_ppm(&mut file)?;
 
-    let v = Vector::new(0.0, 1.0, 2.0);
-    let p = Point::new(-1.0, 0.0, 0.5);
+    let v = Vector {
+        x: 0.0,
+        y: 1.0,
+        z: 2.0,
+    };
+    let p = Point {
+        x: -1.0,
+        y: 0.0,
+        z: 0.5,
+    };
     let m = Matrix4x4::new([
         [0.0, 0.1, 0.2, 0.3],
         [1.0, 1.1, 1.2, 1.3],
@@ -27,8 +35,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("{:+.3}", m);
 
     let ray = Ray {
-        origin: Point::new(0.0, 0.0, 0.0),
-        direction: Vector::new(1.0, 0.0, 0.0),
+        origin: Point {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        },
+        direction: Vector {
+            x: 1.0,
+            y: 0.0,
+            z: 0.0,
+        },
     };
     println!("{:?}", ray);
     Ok(())

@@ -28,7 +28,12 @@ impl Ray {
     // TODO: Later this function should work with more things than spheres.
     pub fn intersect(&self, object: Sphere) -> Vec<Intersection> {
         // Note: Spheres are hardcoded to be at the origin for now.
-        let sphere_to_ray = self.origin - Point::new(0.0, 0.0, 0.0);
+        let sphere_to_ray = self.origin
+            - Point {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            };
         let a = self.direction.squared_length();
         let b = 2.0 * self.direction.dot(sphere_to_ray);
         let c = sphere_to_ray.squared_length() - 1.0;
@@ -70,8 +75,16 @@ mod tests {
 
     #[test]
     fn create_ray() {
-        let origin = Point::new(1.0, 2.0, 3.0);
-        let direction = Vector::new(4.0, 5.0, 6.0);
+        let origin = Point {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+        };
+        let direction = Vector {
+            x: 4.0,
+            y: 5.0,
+            z: 6.0,
+        };
         let ray = Ray { origin, direction };
         assert_eq!(ray.origin, origin);
         assert_eq!(ray.direction, direction);
@@ -80,44 +93,132 @@ mod tests {
     #[test]
     fn compute_position_along_ray() {
         let ray = Ray {
-            origin: Point::new(2.0, 3.0, 4.0),
-            direction: Vector::new(1.0, 0.0, 0.0),
+            origin: Point {
+                x: 2.0,
+                y: 3.0,
+                z: 4.0,
+            },
+            direction: Vector {
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
         };
-        assert_eq!(ray.position(0.0), Point::new(2.0, 3.0, 4.0));
-        assert_eq!(ray.position(1.0), Point::new(3.0, 3.0, 4.0));
-        assert_eq!(ray.position(-1.0), Point::new(1.0, 3.0, 4.0));
-        assert_eq!(ray.position(2.5), Point::new(4.5, 3.0, 4.0));
+        assert_eq!(
+            ray.position(0.0),
+            Point {
+                x: 2.0,
+                y: 3.0,
+                z: 4.0
+            }
+        );
+        assert_eq!(
+            ray.position(1.0),
+            Point {
+                x: 3.0,
+                y: 3.0,
+                z: 4.0
+            }
+        );
+        assert_eq!(
+            ray.position(-1.0),
+            Point {
+                x: 1.0,
+                y: 3.0,
+                z: 4.0
+            }
+        );
+        assert_eq!(
+            ray.position(2.5),
+            Point {
+                x: 4.5,
+                y: 3.0,
+                z: 4.0
+            }
+        );
     }
 
     #[test]
     fn translate_ray() {
         let r = Ray {
-            origin: Point::new(1.0, 2.0, 3.0),
-            direction: Vector::new(0.0, 1.0, 0.0),
+            origin: Point {
+                x: 1.0,
+                y: 2.0,
+                z: 3.0,
+            },
+            direction: Vector {
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
         };
         let m = Matrix4x4::translation(3.0, 4.0, 5.0);
         let r2 = r.transform(m);
-        assert_eq!(r2.origin, Point::new(4.0, 6.0, 8.0));
-        assert_eq!(r2.direction, Vector::new(0.0, 1.0, 0.0));
+        assert_eq!(
+            r2.origin,
+            Point {
+                x: 4.0,
+                y: 6.0,
+                z: 8.0
+            }
+        );
+        assert_eq!(
+            r2.direction,
+            Vector {
+                x: 0.0,
+                y: 1.0,
+                z: 0.0
+            }
+        );
     }
 
     #[test]
     fn scale_ray() {
         let r = Ray {
-            origin: Point::new(1.0, 2.0, 3.0),
-            direction: Vector::new(0.0, 1.0, 0.0),
+            origin: Point {
+                x: 1.0,
+                y: 2.0,
+                z: 3.0,
+            },
+            direction: Vector {
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
         };
         let m = Matrix4x4::scaling(2.0, 3.0, 4.0);
         let r2 = r.transform(m);
-        assert_eq!(r2.origin, Point::new(2.0, 6.0, 12.0));
-        assert_eq!(r2.direction, Vector::new(0.0, 3.0, 0.0));
+        assert_eq!(
+            r2.origin,
+            Point {
+                x: 2.0,
+                y: 6.0,
+                z: 12.0
+            }
+        );
+        assert_eq!(
+            r2.direction,
+            Vector {
+                x: 0.0,
+                y: 3.0,
+                z: 0.0
+            }
+        );
     }
 
     #[test]
     fn intersect_sets_the_object_on_the_intersection() {
         let ray = Ray {
-            origin: Point::new(0.0, 0.0, -5.0),
-            direction: Vector::new(0.0, 0.0, 1.0),
+            origin: Point {
+                x: 0.0,
+                y: 0.0,
+                z: -5.0,
+            },
+            direction: Vector {
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
         };
         let sphere = Sphere {};
         let intersections = ray.intersect(sphere);
@@ -129,8 +230,16 @@ mod tests {
     #[test]
     fn ray_intersects_sphere_at_two_points() {
         let ray = Ray {
-            origin: Point::new(0.0, 0.0, -5.0),
-            direction: Vector::new(0.0, 0.0, 1.0),
+            origin: Point {
+                x: 0.0,
+                y: 0.0,
+                z: -5.0,
+            },
+            direction: Vector {
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
         };
         let sphere = Sphere {};
         let ts = ray.intersect(sphere);
@@ -142,8 +251,16 @@ mod tests {
     #[test]
     fn ray_intersects_sphere_at_tangent() {
         let ray = Ray {
-            origin: Point::new(0.0, 1.0, -5.0),
-            direction: Vector::new(0.0, 0.0, 1.0),
+            origin: Point {
+                x: 0.0,
+                y: 1.0,
+                z: -5.0,
+            },
+            direction: Vector {
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
         };
         let sphere = Sphere {};
         let ts = ray.intersect(sphere);
@@ -155,8 +272,16 @@ mod tests {
     #[test]
     fn ray_misses_sphere() {
         let ray = Ray {
-            origin: Point::new(0.0, 2.0, -5.0),
-            direction: Vector::new(0.0, 0.0, 1.0),
+            origin: Point {
+                x: 0.0,
+                y: 2.0,
+                z: -5.0,
+            },
+            direction: Vector {
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
         };
         let sphere = Sphere {};
         let ts = ray.intersect(sphere);
@@ -166,8 +291,16 @@ mod tests {
     #[test]
     fn ray_originates_inside_sphere() {
         let ray = Ray {
-            origin: Point::new(0.0, 0.0, 0.0),
-            direction: Vector::new(0.0, 0.0, 1.0),
+            origin: Point {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            direction: Vector {
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
         };
         let sphere = Sphere {};
         let ts = ray.intersect(sphere);
@@ -179,8 +312,16 @@ mod tests {
     #[test]
     fn sphere_is_behind_ray() {
         let ray = Ray {
-            origin: Point::new(0.0, 0.0, 5.0),
-            direction: Vector::new(0.0, 0.0, 1.0),
+            origin: Point {
+                x: 0.0,
+                y: 0.0,
+                z: 5.0,
+            },
+            direction: Vector {
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            },
         };
         let sphere = Sphere {};
         let ts = ray.intersect(sphere);
