@@ -3,6 +3,7 @@
 
 mod canvas;
 mod intersection;
+mod material;
 mod objects;
 mod point_light;
 mod primitives;
@@ -10,6 +11,7 @@ mod ray;
 
 pub use canvas::Canvas;
 pub use intersection::Intersection;
+pub use material::Material;
 pub use objects::sphere::Sphere;
 pub use point_light::PointLight;
 pub use primitives::color::Color;
