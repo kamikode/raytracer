@@ -3,49 +3,49 @@ use std::error::Error;
 use std::fs::File;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // Write test.ppm file.
-    let mut file = File::create("test.ppm")?;
-    let mut canvas = Canvas::<3, 2>::new();
-    canvas.set_pixel(0, 0, Color::red())?;
-    canvas.set_pixel(1, 0, Color::green())?;
-    canvas.set_pixel(2, 0, Color::blue())?;
-    canvas.set_pixel(0, 1, Color::yellow())?;
-    canvas.set_pixel(1, 1, Color::white())?;
-    canvas.set_pixel(2, 1, Color::black())?;
-    canvas.write_ppm(&mut file)?;
+    // Simple program to render a sphere (or rather circle).
 
-    let v = Vector {
+    // Make a square canvas for simplicity.
+    let mut canvas = Canvas::<100, 100>::new();
+    assert_eq!(canvas.width(), canvas.height());
+
+    // All rays are shot from the origin.
+    let origin = Point {
         x: 0.0,
-        y: 1.0,
-        z: 2.0,
-    };
-    let p = Point {
-        x: -1.0,
         y: 0.0,
-        z: 0.5,
+        z: -5.0,
     };
-    let m = Matrix4x4::new([
-        [0.0, 0.1, 0.2, 0.3],
-        [1.0, 1.1, 1.2, 1.3],
-        [2.0, 2.1, 2.2, 2.3],
-        [3.0, 3.1, 3.2, 3.3],
-    ]);
-    println!("{:+.3}", p);
-    println!("{:+.3}", v);
-    println!("{:+.3}", m);
 
-    let ray = Ray {
-        origin: Point {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        },
-        direction: Vector {
-            x: 1.0,
-            y: 0.0,
-            z: 0.0,
-        },
-    };
-    println!("{:?}", ray);
+    // Simple unit sphere.
+    let sphere = Sphere::default();
+
+    // Parameters for the wall.
+    let wall_z: Float = 10.0;
+    let wall_size: Float = 7.0;
+    let wall_half_size: Float = wall_size / 2.0;
+
+    for x in 0..canvas.width() {
+        let frac = (x as Float) / (canvas.width() as Float);
+        let wall_x = frac * wall_size - wall_half_size;
+        for y in 0..canvas.height() {
+            let frac = (y as Float) / (canvas.height() as Float);
+            let wall_y = frac * wall_size - wall_half_size;
+            let wall_point = Point {
+                x: wall_x,
+                y: wall_y,
+                z: wall_z,
+            };
+            let ray = Ray {
+                origin,
+                direction: (wall_point - origin).normalize(),
+            };
+            let intersections = ray.intersect(sphere);
+            if get_hit(&intersections).is_some() {
+                canvas.set_pixel(x, y, Color::red())?;
+            }
+        }
+    }
+    let mut file = File::create("test.ppm")?;
+    canvas.write_ppm(&mut file)?;
     Ok(())
 }

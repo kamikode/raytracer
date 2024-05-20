@@ -56,7 +56,7 @@ impl Ray {
     }
 }
 
-fn get_hit(intersections: &[Intersection]) -> Option<Intersection> {
+pub fn get_hit(intersections: &[Intersection]) -> Option<Intersection> {
     let mut hit = None;
     let mut min_t = Float::INFINITY;
     for intersection in intersections {

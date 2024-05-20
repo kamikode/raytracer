@@ -19,17 +19,21 @@ impl Debug for IndexError {
 #[derive(Debug)]
 pub struct Canvas<const W: usize, const H: usize> {
     data: [[Color; H]; W],
-    width: usize,
-    height: usize,
 }
 
 impl<const W: usize, const H: usize> Canvas<W, H> {
     pub fn new() -> Self {
         Canvas {
             data: [[CLEAR_COLOR; H]; W],
-            width: W,
-            height: H,
         }
+    }
+
+    pub fn width(&self) -> usize {
+        W
+    }
+
+    pub fn height(&self) -> usize {
+        H
     }
 
     pub fn set_pixel(&mut self, x: usize, y: usize, color: Color) -> Result<(), IndexError> {
@@ -57,11 +61,11 @@ impl<const W: usize, const H: usize> Canvas<W, H> {
     pub fn write_ppm<T: Write>(&self, file: &mut T) -> Result<(), io::Error> {
         // Write header.
         writeln!(file, "P3")?;
-        writeln!(file, "{} {}", self.width, self.height)?;
+        writeln!(file, "{} {}", self.width(), self.height())?;
         writeln!(file, "255")?;
         // Write pixel data.
-        for y in 0..self.height {
-            for x in 0..self.width {
+        for y in 0..self.height() {
+            for x in 0..self.width() {
                 let pixel = self.get_pixel(x, y).expect("indices should be valid");
                 let r = (255.0 * pixel.r).max(0.0).min(255.0);
                 let g = (255.0 * pixel.g).max(0.0).min(255.0);
@@ -110,8 +114,8 @@ mod tests {
     #[test]
     fn width_and_height_are_correct() {
         let canvas = Canvas::<20, 10>::new();
-        assert_eq!(canvas.width, 20);
-        assert_eq!(canvas.height, 10);
+        assert_eq!(canvas.width(), 20);
+        assert_eq!(canvas.height(), 10);
     }
 
     #[test]
