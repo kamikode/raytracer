@@ -3,21 +3,9 @@ use std::error::Error;
 use std::fs::File;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let sphere = Sphere {
-        transform: Matrix4x4::scaling(1.0, 0.5, 1.0)
-            .matmul(Matrix4x4::rotation_z(std::f64::consts::PI as Float / 5.0)),
-        material: Material::default(),
-    };
-    let normal = sphere.normal_at(Point {
-        x: 0.0,
-        y: std::f64::consts::FRAC_1_SQRT_2 as Float,
-        z: -std::f64::consts::FRAC_1_SQRT_2 as Float,
-    });
-    println!("{}", normal);
-
     // Simple program to render a sphere (or rather circle).
     // Make a square canvas for simplicity.
-    let mut canvas = Canvas::<100, 100>::new();
+    let mut canvas = Canvas::<256, 256>::new();
     assert_eq!(canvas.width(), canvas.height());
 
     // All rays are shot from the origin.
@@ -28,7 +16,27 @@ fn main() -> Result<(), Box<dyn Error>> {
     };
 
     // Simple unit sphere.
-    let sphere = Sphere::default();
+    let sphere = Sphere {
+        material: Material {
+            color: Color {
+                r: 1.0,
+                g: 0.2,
+                b: 1.0,
+            },
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+
+    // Point light.
+    let light = PointLight {
+        position: Point {
+            x: -10.0,
+            y: 10.0,
+            z: -10.0,
+        },
+        intensity: Color::white(),
+    };
 
     // Parameters for the wall.
     let wall_z: Float = 10.0;
@@ -40,7 +48,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let wall_x = frac * wall_size - wall_half_size;
         for y in 0..canvas.height() {
             let frac = (y as Float) / (canvas.height() as Float);
-            let wall_y = frac * wall_size - wall_half_size;
+            let wall_y = -(frac * wall_size - wall_half_size);
             let wall_point = Point {
                 x: wall_x,
                 y: wall_y,
@@ -51,8 +59,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                 direction: (wall_point - origin).normalize(),
             };
             let intersections = ray.intersect(sphere);
-            if get_hit(&intersections).is_some() {
-                canvas.set_pixel(x, y, Color::red())?;
+            let hit = get_hit(&intersections);
+
+            if hit.is_some() {
+                let hit = hit.unwrap();
+                let point = ray.position(hit.t);
+                let normal = hit.object.normal_at(point);
+                let eye = -ray.direction;
+                let color = hit.object.material.lighting(light, point, eye, normal);
+                canvas.set_pixel(x, y, color)?;
             }
         }
     }

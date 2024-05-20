@@ -2,11 +2,11 @@ use crate::{Color, Float, Point, PointLight, Vector};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Material {
-    color: Color,
-    ambient: Float,
-    diffuse: Float,
-    specular: Float,
-    shininess: Float,
+    pub color: Color,
+    pub ambient: Float,
+    pub diffuse: Float,
+    pub specular: Float,
+    pub shininess: Float,
 }
 
 impl Default for Material {
@@ -22,7 +22,7 @@ impl Default for Material {
 }
 
 impl Material {
-    fn lighting(&self, light: PointLight, point: Point, eye: Vector, normal: Vector) -> Color {
+    pub fn lighting(&self, light: PointLight, point: Point, eye: Vector, normal: Vector) -> Color {
         let effective_color = self.color * light.intensity;
         let lightv = (light.position - point).normalize();
         let ambient = effective_color * self.ambient;
