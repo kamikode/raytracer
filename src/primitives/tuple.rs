@@ -132,8 +132,12 @@ impl Div<Float> for Vector {
 }
 
 impl Vector {
+    pub fn squared_length(&self) -> Float {
+        self.dot(*self)
+    }
+
     pub fn length(&self) -> Float {
-        self.dot(*self).sqrt()
+        self.squared_length().sqrt()
     }
 
     pub fn normalize(&self) -> Vector {
@@ -297,6 +301,20 @@ mod tests {
         let b = Vector::new(2.0, 3.0, 4.0);
         assert_eq!(a.dot(b), 20.0);
         assert_eq!(b.dot(a), 20.0);
+    }
+
+    #[test]
+    fn squared_length_calculation() {
+        let x = Vector::new(1.0, 0.0, 0.0);
+        assert_eq!(x.squared_length(), 1.0);
+        let y = Vector::new(0.0, 1.0, 0.0);
+        assert_eq!(y.squared_length(), 1.0);
+        let z = Vector::new(0.0, 0.0, 1.0);
+        assert_eq!(z.squared_length(), 1.0);
+        let a = Vector::new(1.0, 2.0, 3.0);
+        assert_eq!(a.squared_length(), 14.0);
+        let b = Vector::new(-1.0, -2.0, -3.0);
+        assert_eq!(b.squared_length(), 14.0);
     }
 
     #[test]
