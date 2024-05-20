@@ -3,8 +3,18 @@ use std::error::Error;
 use std::fs::File;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // Simple program to render a sphere (or rather circle).
+    let sphere = Sphere {
+        transform: Matrix4x4::scaling(1.0, 0.5, 1.0)
+            .matmul(Matrix4x4::rotation_z(std::f64::consts::PI as Float / 5.0)),
+    };
+    let normal = sphere.normal_at(Point {
+        x: 0.0,
+        y: std::f64::consts::FRAC_1_SQRT_2 as Float,
+        z: -std::f64::consts::FRAC_1_SQRT_2 as Float,
+    });
+    println!("{}", normal);
 
+    // Simple program to render a sphere (or rather circle).
     // Make a square canvas for simplicity.
     let mut canvas = Canvas::<100, 100>::new();
     assert_eq!(canvas.width(), canvas.height());

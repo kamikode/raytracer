@@ -2,6 +2,7 @@
 pub type Float = f64;
 
 #[cfg(test)]
+#[macro_export]
 macro_rules! approx_eq {
     ($x:expr, $y:expr) => {
         Float::abs($x - $y) <= Float::EPSILON.sqrt() + 1e-5 * Float::abs($y)

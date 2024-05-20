@@ -4,7 +4,7 @@ use std::ops::{Index, IndexMut};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Matrix<const M: usize, const N: usize> {
-    data: [[Float; N]; M],
+    pub data: [[Float; N]; M],
 }
 
 pub type Matrix4x4 = Matrix<4, 4>;

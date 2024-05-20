@@ -1,4 +1,4 @@
-use super::float::Float;
+use crate::Float;
 use crate::Matrix;
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
