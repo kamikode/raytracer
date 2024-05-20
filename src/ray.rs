@@ -1,5 +1,5 @@
 use crate::primitives::float::Float;
-use crate::{Intersection, Point, Sphere, Vector};
+use crate::{Intersection, Matrix4x4, Point, Sphere, Vector};
 
 #[derive(Debug)]
 pub struct Ray {
@@ -10,6 +10,19 @@ pub struct Ray {
 impl Ray {
     pub fn position(&self, t: Float) -> Point {
         self.origin + t * self.direction
+    }
+
+    pub fn transform(&self, transform: Matrix4x4) -> Ray {
+        Ray {
+            origin: transform
+                .matmul(self.origin)
+                .try_into()
+                .expect("origin should be convertible into Point after applying transform"),
+            direction: transform
+                .matmul(self.direction)
+                .try_into()
+                .expect("direction should be convertible into Vector after applying transform"),
+        }
     }
 
     // TODO: Later this function should work with more things than spheres.
@@ -74,6 +87,30 @@ mod tests {
         assert_eq!(ray.position(1.0), Point::new(3.0, 3.0, 4.0));
         assert_eq!(ray.position(-1.0), Point::new(1.0, 3.0, 4.0));
         assert_eq!(ray.position(2.5), Point::new(4.5, 3.0, 4.0));
+    }
+
+    #[test]
+    fn translate_ray() {
+        let r = Ray {
+            origin: Point::new(1.0, 2.0, 3.0),
+            direction: Vector::new(0.0, 1.0, 0.0),
+        };
+        let m = Matrix4x4::translation(3.0, 4.0, 5.0);
+        let r2 = r.transform(m);
+        assert_eq!(r2.origin, Point::new(4.0, 6.0, 8.0));
+        assert_eq!(r2.direction, Vector::new(0.0, 1.0, 0.0));
+    }
+
+    #[test]
+    fn scale_ray() {
+        let r = Ray {
+            origin: Point::new(1.0, 2.0, 3.0),
+            direction: Vector::new(0.0, 1.0, 0.0),
+        };
+        let m = Matrix4x4::scaling(2.0, 3.0, 4.0);
+        let r2 = r.transform(m);
+        assert_eq!(r2.origin, Point::new(2.0, 6.0, 12.0));
+        assert_eq!(r2.direction, Vector::new(0.0, 3.0, 0.0));
     }
 
     #[test]
