@@ -1,9 +1,9 @@
 use crate::{Color, Point};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct PointLight {
-    position: Point,
-    intensity: Color,
+    pub position: Point,
+    pub intensity: Color,
 }
 
 #[cfg(test)]
