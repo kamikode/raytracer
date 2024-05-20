@@ -73,6 +73,12 @@ impl Point {
     }
 }
 
+impl Vector {
+    pub fn reflect(&self, normal: Vector) -> Vector {
+        *self - normal * 2.0 * self.dot(normal)
+    }
+}
+
 macro_rules! impl_add {
     ($Lhs:ident, $Rhs:ident, $Out:ident) => {
         impl Add<$Rhs> for $Lhs {
@@ -658,5 +664,51 @@ mod tests {
         };
         assert_eq!(a.cross(b), axb);
         assert_eq!(b.cross(a), bxa);
+    }
+
+    #[test]
+    fn reflect_vector_approaching_at_45_degree() {
+        let v = Vector {
+            x: 1.0,
+            y: -1.0,
+            z: 0.0,
+        };
+        let n = Vector {
+            x: 0.0,
+            y: 1.0,
+            z: 0.0,
+        };
+        let r = v.reflect(n);
+        assert_approx_eq!(
+            r,
+            Vector {
+                x: 1.0,
+                y: 1.0,
+                z: 0.0
+            }
+        );
+    }
+
+    #[test]
+    fn reflect_vector_at_slanted_surface() {
+        let v = Vector {
+            x: 0.0,
+            y: -1.0,
+            z: 0.0,
+        };
+        let n = Vector {
+            x: std::f64::consts::FRAC_1_SQRT_2 as Float,
+            y: std::f64::consts::FRAC_1_SQRT_2 as Float,
+            z: 0.0,
+        };
+        let r = v.reflect(n);
+        assert_approx_eq!(
+            r,
+            Vector {
+                x: 1.0,
+                y: 0.0,
+                z: 0.0
+            }
+        );
     }
 }
